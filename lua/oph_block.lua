@@ -11,18 +11,18 @@ local block = false
 local errors = {}
 
 if http_xss_verbs[ngx.var.request_method] and (ngx.var.cookie_csrf == nil or not (ngx.var.cookie_csrf == ngx.var.http_x_csrf)) then
-	block = true
+  block = true
   table.insert(errors, "CSRF")
 end
 
 if block then
   ngx.status = ngx.HTTP_FORBIDDEN
-	if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
-		ngx.header.content_type = "application/json; charset=utf-8"  
-		ngx.say("{'error': '", error, "'}")
-	else
-		ngx.say("Error: ", error)		
-	end
+  if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
+    ngx.header.content_type = "application/json; charset=utf-8"  
+    ngx.say("{'error': '", error, "'}")
+  else
+    ngx.say("Error: ", error)   
+  end
   ngx.log(ngx.ERR, "ERROR:", table.concat(errors, " "))
   ngx.exit(ngx.HTTP_FORBIDDEN)
-end	
+end 
