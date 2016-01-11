@@ -14,11 +14,12 @@ if http_xss_verbs[ngx.var.request_method] and (ngx.var.cookie_csrf == nil or not
 end
 
 if block then
+  ngx.status = ngx.HTTP_FORBIDDEN
 	if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
 		ngx.header.content_type = "application/json; charset=utf-8"  
 		ngx.say("{'error': '", error, "'}")
 	else
 		ngx.say("Error: ", error)		
 	end
-    ngx.exit(ngx.HTTP_FORBIDDEN)
+  ngx.exit(ngx.HTTP_FORBIDDEN)
 end	
