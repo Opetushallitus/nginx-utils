@@ -8,9 +8,11 @@ local http_xss_verbs = Set {"POST", "PUT", "DELETE", "PATCH"}
 local error = "Invalid request, please read http://oph.fi"
 
 local block = false
+local errors = {}
 
 if http_xss_verbs[ngx.var.request_method] and (ngx.var.cookie_csrf == nil or not (ngx.var.cookie_csrf == ngx.var.http_x_csrf)) then
 	block = true
+  table.insert(errors, "CSRF")
 end
 
 if block then
@@ -21,5 +23,6 @@ if block then
 	else
 		ngx.say("Error: ", error)		
 	end
+  ngx.log(ngx.ERR, "ERROR:", table.concat(errors, " "))
   ngx.exit(ngx.HTTP_FORBIDDEN)
 end	
