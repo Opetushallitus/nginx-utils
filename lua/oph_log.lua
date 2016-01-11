@@ -28,7 +28,6 @@ if http_xss_verbs[ngx.var.request_method] then
   end
 end
 
---[[
 -- Caller-id and Transaction-ID header checks
 if ngx.var.http_caller_id == nil then
   block = true
@@ -39,19 +38,7 @@ if ngx.var.http_transaction_id == nil then
   block = true
   table.insert(errors, "NO-TRANSACTION-ID")
 end
---]]
 
 if next(errors) then
   ngx.log(ngx.ERR, "ERROR:", table.concat(errors, "|"))
 end
-
-if block then
-  ngx.status = ngx.HTTP_FORBIDDEN
-  if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
-    ngx.header.content_type = "application/json; charset=utf-8"  
-    ngx.say("{'error': '", error, "'}")
-  else
-    ngx.say("Error: ", error)   
-  end
-  ngx.exit(ngx.HTTP_FORBIDDEN)
-end 
