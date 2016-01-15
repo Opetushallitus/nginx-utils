@@ -10,8 +10,8 @@ local errors = {}
 
 -- Double submit protection for CSRF:
 -- CSRF cookie and X-CSRF must exist andhave same content for "POST", "PUT", "DELETE", "PATCH"
-local http_xss_verbs = Set {"POST", "PUT", "DELETE", "PATCH"}
-if http_xss_verbs[ngx.var.request_method] then
+local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
+if not safe_http_verbs[ngx.var.request_method] then
   if ngx.var.cookie_csrf == nil or ngx.var.http_x_csrf == nil then
       if ngx.var.cookie_csrf == nil then
         block = true
@@ -25,20 +25,20 @@ if http_xss_verbs[ngx.var.request_method] then
     block = true
     table.insert(errors, "CSRF-MISMATCH") 
   end
-end
 
----[[
--- Caller-id and Transaction-ID header checks
-if ngx.var.http_caller_id == nil then
-  block = true
-  table.insert(errors, "NO-CALLER-ID")
-end
+  ---[[
+  -- Caller-id and Transaction-ID header checks
+  if ngx.var.http_caller_id == nil then
+    block = true
+    table.insert(errors, "NO-CALLER-ID")
+  end
 
-if ngx.var.http_transaction_id == nil then
-  block = true
-  table.insert(errors, "NO-TRANSACTION-ID")
+  if ngx.var.http_transaction_id == nil then
+    block = true
+    table.insert(errors, "NO-TRANSACTION-ID")
+  end
+  --]]
 end
---]]
 
 if next(errors) then
   ngx.log(ngx.ERR, "ERROR:", table.concat(errors, "|"))
