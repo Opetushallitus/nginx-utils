@@ -20,8 +20,8 @@ reload configs
 
 test that csrf blocking works
 
-    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 123" http://localhost:20100/lua
-    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 123" --header "Accept: application/json" http://localhost:20100/lua
+    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 124" http://localhost:20100/proxypass
+    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 124" --header "Accept: application/json" http://localhost:20100/lua
 
 stopping dev server
 
