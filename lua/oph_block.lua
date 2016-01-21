@@ -5,11 +5,43 @@ function Set (list)
   return set
 end
 
+function get_cookies()
+  local cookies = ngx.header["Set-Cookie"] or {}
+  if type(cookies) == "string" then
+    cookies = {cookies}
+  end
+  return cookies
+end
+ 
+function add_cookie(cookie)
+  local cookies = get_cookies()
+  table.insert(cookies, cookie)
+  ngx.header['Set-Cookie'] = cookies
+end
+
+function parse_domain(host)
+  return string.match(host or "www.opintopolku.fi" , "[%w%.]*%.(%w+%.%w+)") or host
+end
+
+function random_str(len)
+  local urand = assert (io.open ('/dev/urandom', 'rb'))
+  local rand  = urand or assert (io.open ('/dev/random', 'rb'))
+  local s = rand:read(len)
+  local n = ""
+
+  rand:close()
+  for i = 1, s:len() do
+    n = n .. string.format("%x", s:byte(i))
+  end
+
+  return n
+end
+
 local block = false
 local errors = {}
 
 -- Double submit protection for CSRF:
--- CSRF cookie and X-CSRF must exist andhave same content for unsafe requests
+-- CSRF cookie and X-CSRF must exist andhave same content for "POST", "PUT", "DELETE", "PATCH"
 local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
 if not safe_http_verbs[ngx.var.request_method] then
   if ngx.var.cookie_csrf == nil or ngx.var.http_x_csrf == nil then
@@ -38,6 +70,11 @@ if not safe_http_verbs[ngx.var.request_method] then
     table.insert(errors, "NO-TRANSACTION-ID")
   end
   --]]
+end
+
+-- add CSRF cookie to response
+if ngx.var.cookie_csrf == nil then
+  add_cookie("CSRF=".. random_str(10) .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
 end
 
 if next(errors) then
