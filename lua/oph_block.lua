@@ -78,7 +78,14 @@ if ngx.var.cookie_csrf == nil then
 end
 
 if next(errors) then
-  ngx.log(ngx.ERR, "ERROR:", table.concat(errors, "|"))
+  local txt = {'ERROR: "', table.concat(errors, "|"),'"'}
+  if ngx.var.http_caller_id then
+    block = true
+    table.insert(txt, ' caller-id: "')
+    table.insert(txt, ngx.var.http_caller_id)
+    table.insert(txt, '"')
+  end
+  ngx.log(ngx.ERR, table.concat(txt,""))
 end
 
 ---[[
