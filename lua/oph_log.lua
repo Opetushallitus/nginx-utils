@@ -73,8 +73,16 @@ if not safe_http_verbs[ngx.var.request_method] then
 end
 
 -- add CSRF cookie to response
-if ngx.var.cookie_csrf == nil then
-  add_cookie("CSRF=".. random_str(10) .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
+local csrf = ngx.var.cookie_csrf
+if csrf == nil then
+  csrf = random_str(16)
+  add_cookie("CSRF=" .. csrf .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
+end
+
+if ngx.var.http_id then
+  ngx.header["id"] = ngx.var.http_id .. ";" .. random_str(16)
+else
+  ngx.header["id"] = csrf .. ";" .. random_str(16)
 end
 
 if next(errors) then

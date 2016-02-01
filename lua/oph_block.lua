@@ -74,7 +74,7 @@ end
 
 -- add CSRF cookie to response
 if ngx.var.cookie_csrf == nil then
-  add_cookie("CSRF=".. random_str(10) .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
+  add_cookie("CSRF=".. random_str(16) .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
 end
 
 if next(errors) then
