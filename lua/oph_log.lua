@@ -64,11 +64,6 @@ if not safe_http_verbs[ngx.var.request_method] then
     block = true
     table.insert(errors, "NO-CALLER-ID")
   end
-
-  if ngx.var.http_transaction_id == nil then
-    block = true
-    table.insert(errors, "NO-TRANSACTION-ID")
-  end
   --]]
 end
 
@@ -79,20 +74,18 @@ if csrf == nil then
   add_cookie("CSRF=" .. csrf .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
 end
 
-if ngx.var.http_id then
-  ngx.header["id"] = ngx.var.http_id .. ";" .. random_str(16)
-else
-  ngx.header["id"] = csrf .. ";" .. random_str(16)
-end
+-- create request header "id" from existing request id or csrf and add random string
+local id = ( ngx.var.http_id or csrf ) .. ";" .. random_str(16)
+ngx.req.set_header("ID", id)
 
+-- log if errors
 if next(errors) then
-  local txt = {'ERROR: "', table.concat(errors, "|"),'"'}
+  local txt = 'ERROR: "' .. table.concat(errors, "|") .. '"'
   if ngx.var.http_caller_id then
-    table.insert(txt, ' caller-id: "')
-    table.insert(txt, ngx.var.http_caller_id)
-    table.insert(txt, '"')
+    txt = txt .. ' caller-id: "' .. ngx.var.http_caller_id .. '"'
   end
-  ngx.log(ngx.ERR, table.concat(txt,""))
+  txt = txt .. ' id: "' .. id .. '"'
+  ngx.log(ngx.ERR, txt)
 end
 
 --[[
