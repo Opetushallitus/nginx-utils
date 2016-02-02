@@ -18,10 +18,9 @@ reload configs
 
     openresty -s reload
 
-test that csrf blocking works
+run automated tests
 
-    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 124" http://localhost:20100/proxypass
-    curl --data "param=1" --cookie "CSRF=123" --header "X-CSRF: 124" --header "Accept: application/json" http://localhost:20100/lua
+    ./test.sh
 
 stopping dev server
 

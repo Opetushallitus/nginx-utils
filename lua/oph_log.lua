@@ -59,12 +59,15 @@ if not safe_http_verbs[ngx.var.request_method] then
   end
 
   ---[[
-  -- Caller-id and Transaction-ID header checks
-  if ngx.var.http_caller_id == nil then
-    block = true
-    table.insert(errors, "NO-CALLER-ID")
+  -- clientSubSystemCode check
+  if ngx.var.http_clientsubsystemcode == nil then
+    table.insert(errors, "NO-CLIENTSUBSYSTEMCODE")
   end
   --]]
+end
+
+if ngx.var.http_caller_id then
+  table.insert(errors, "CALLER-ID")
 end
 
 -- add CSRF cookie to response
@@ -83,6 +86,9 @@ if next(errors) then
   local txt = 'ERROR: "' .. table.concat(errors, "|") .. '"'
   if ngx.var.http_caller_id then
     txt = txt .. ' caller-id: "' .. ngx.var.http_caller_id .. '"'
+  end
+  if ngx.var.http_clientsubsystemcode then
+    txt = txt .. ' clientSubSystemCode: "' .. ngx.var.http_clientsubsystemcode .. '"'
   end
   txt = txt .. ' id: "' .. id .. '"'
   ngx.log(ngx.ERR, txt)
