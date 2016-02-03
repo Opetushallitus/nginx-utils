@@ -28,6 +28,8 @@ function reset() {
   sleep 0.1
 }
 
+reset
+
 # regular GET
 assert 'curl -s -v http://localhost:20100/proxypass' "Set-Cookie: CSRF" "id:" "Request handled by LUA at app server"
 

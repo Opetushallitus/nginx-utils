@@ -29,3 +29,9 @@ run automated tests
 stopping dev server
 
     openresty -s stop
+
+# Deployment
+
+* Copy all three files so that they're available 
+* Add lua_package_path '/path/to/lua/directory;;'; directive to nginx's config at server level 
+* Add access_by_lua_file directives to all relevant location blocks

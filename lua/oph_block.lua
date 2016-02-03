@@ -1,3 +1,5 @@
+require 'lua/init_random'
+
 -- lua does not include set, create a dictionary
 function Set (list)
   local set = {}
@@ -24,16 +26,10 @@ function parse_domain(host)
 end
 
 function random_str(len)
-  local urand = assert (io.open ('/dev/urandom', 'rb'))
-  local rand  = urand or assert (io.open ('/dev/random', 'rb'))
-  local s = rand:read(len)
   local n = ""
-
-  rand:close()
-  for i = 1, s:len() do
-    n = n .. string.format("%02x", s:byte(i))
+  for i = 1, len do
+    n = n .. string.format("%02x", math.random(0,255))
   end
-
   return n
 end
 
