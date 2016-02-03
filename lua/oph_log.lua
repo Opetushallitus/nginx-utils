@@ -44,16 +44,16 @@ local errors = {}
 -- CSRF cookie and X-CSRF must exist andhave same content for "POST", "PUT", "DELETE", "PATCH"
 local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
 if not safe_http_verbs[ngx.var.request_method] then
-  if ngx.var.cookie_csrf == nil or ngx.var.http_x_csrf == nil then
+  if ngx.var.cookie_csrf == nil or ngx.var.http_csrf == nil then
       if ngx.var.cookie_csrf == nil then
         block = true
         table.insert(errors, "NO-CSRF-COOKIE")
       end
-      if ngx.var.http_x_csrf == nil then
+      if ngx.var.http_csrf == nil then
         block = true
         table.insert(errors, "NO-CSRF-HEADER")
       end 
-  elseif not (ngx.var.cookie_csrf == ngx.var.http_x_csrf) then
+  elseif not (ngx.var.cookie_csrf == ngx.var.http_csrf) then
     block = true
     table.insert(errors, "CSRF-MISMATCH") 
   end
