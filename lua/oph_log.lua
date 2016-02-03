@@ -31,7 +31,7 @@ function random_str(len)
 
   rand:close()
   for i = 1, s:len() do
-    n = n .. string.format("%x", s:byte(i))
+    n = n .. string.format("%02x", s:byte(i))
   end
 
   return n
