@@ -35,3 +35,8 @@ echo "***************************************************************"
 echo POST with CSRF cookie and header
 reset
 ab -n1000 -c10 -C CSRF=pow -H CSRF:pow -p $0 -T application/x-www-form-urlencoded http://127.0.0.1:20100/proxypass
+
+echo "***************************************************************"
+echo POST with CSRF cookie and POST parameter
+reset
+ab -n1000 -c10 -C CSRF=pow -H CSRF:pow -p performance_post_data.txt -T application/x-www-form-urlencoded http://127.0.0.1:20100/proxypass

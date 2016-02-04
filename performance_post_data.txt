@@ -1,0 +1,1 @@
+CSRF=pow&param=1
