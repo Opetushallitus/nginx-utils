@@ -36,20 +36,36 @@ end
 local block = false
 local errors = {}
 
+function string.starts(String,Start)
+   return string.sub(String,1,string.len(Start))==Start
+end
+
+function resolve_post_param_csrf()
+  if ngx.var.request_method == "POST" and string.starts(ngx.var.http_content_type or "", "application/x-www-form-urlencoded") then
+    ngx.req.read_body()
+    local args, err = ngx.req.get_post_args()
+    if args then
+      return args["CSRF"]
+    end
+  end
+end
+
 -- Double submit protection for CSRF:
 -- CSRF cookie and X-CSRF must exist andhave same content for "POST", "PUT", "DELETE", "PATCH"
 local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
 if not safe_http_verbs[ngx.var.request_method] then
-  if ngx.var.cookie_csrf == nil or ngx.var.http_csrf == nil then
-      if ngx.var.cookie_csrf == nil then
+  local csrf_parameter = ngx.var.http_csrf or resolve_post_param_csrf()
+  local csrf_cookie = ngx.var.cookie_csrf
+  if csrf_cookie == nil or csrf_parameter == nil then
+      if csrf_cookie == nil then
         block = true
         table.insert(errors, "NO-CSRF-COOKIE")
       end
-      if ngx.var.http_csrf == nil then
+      if csrf_parameter == nil then
         block = true
-        table.insert(errors, "NO-CSRF-HEADER")
+        table.insert(errors, "NO-CSRF-PARAM")
       end 
-  elseif not (ngx.var.cookie_csrf == ngx.var.http_csrf) then
+  elseif not (csrf_cookie == csrf_parameter) then
     block = true
     table.insert(errors, "CSRF-MISMATCH") 
   end

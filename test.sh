@@ -46,6 +46,11 @@ reset
 assert 'curl -s -v --data param=1 --cookie CSRF=123 --header CSRF:123 http://localhost:20100/proxypass' "id: 123;" "Request handled by LUA at app server"
 assert 'cat logs/error.log' 'ERROR: "NO-CLIENTSUBSYSTEMCODE" id: "'
 
+# valid POST without CLIENTSUBSYSTEMCODE
+reset
+assert 'curl -s -v --data CSRF=123 --cookie CSRF=123 http://localhost:20100/proxypass' "id: 123;" "Request handled by LUA at app server"
+assert 'cat logs/error.log' 'ERROR: "NO-CLIENTSUBSYSTEMCODE" id: "'
+
 # invalid CSRF POST
 reset
 assert 'curl -s -v --data param=1 --cookie CSRF=123 --header CSRF:124 http://localhost:20100/proxypass' Invalid
@@ -64,7 +69,7 @@ assert 'cat logs/error.log' 'ERROR: "NO-CSRF-COOKIE" clientSubSystemCode: "Sure"
 # invalid CSRF POST, missing header
 reset
 assert 'curl -s -v --data param=1 --cookie CSRF=1234 --header clientSubSystemCode:Sure http://localhost:20100/proxypass' Invalid
-assert 'cat logs/error.log' 'ERROR: "NO-CSRF-HEADER" clientSubSystemCode: "Sure" id: "'
+assert 'cat logs/error.log' 'ERROR: "NO-CSRF-PARAM" clientSubSystemCode: "Sure" id: "'
 
 # invalid CSRF POST gets JSON response
 reset
