@@ -4,7 +4,7 @@ lua/oph_block.lua
 * Checks CSRF: Blocks request if method type is something other than "GET", "HEAD" and "OPTIONS" and "CSRF" cookie does not exist or does not have the same value as "CSRF" header
 * Supports HTML forms
     * CSRF is read from post parameter named "CSRF"
-    * CLIENTSUBSYSTEMCODE is sent as request header "clientSubSystemCode" 
+    * "clientSubSystemCode" form parameter is sent as request header "clientSubSystemCode" 
 * Adds CSRF cookie to response if missing
 * Sets ID header to request: All requests are uniquely identified
 
