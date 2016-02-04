@@ -4,8 +4,9 @@ set -e
 
 function reset() {
   openresty -s reload
-  sleep 0.1
-  curl http://127.0.0.1:20100/proxypass > /dev/null
+  sleep 0.2
+  curl -s http://127.0.0.1:20100/proxypass > /dev/null
+  sleep 4
 }
 
 rm -rf logs/*
@@ -13,7 +14,7 @@ rm -rf logs/*
 echo "***************************************************************"
 echo Direct access without LUA
 reset
-curl http://127.0.0.1:20100/proxypass_direct > /dev/null
+curl -s http://127.0.0.1:20100/proxypass_direct > /dev/null
 ab -n1000 -c20 -C CSRF=pow http://127.0.0.1:20100/proxypass_direct
 
 echo "***************************************************************"

@@ -39,7 +39,7 @@ assert 'curl -s -v  --header id:pow http://localhost:20100/proxypass' "id: pow;"
 # regular GET should log error about Caller-Id
 reset
 assert 'curl -s -v --cookie CSRF=123 --header Caller-Id:Sure http://localhost:20100/proxypass' "id: 123;" "Request handled by LUA at app server"
-assert 'cat logs/error.log' 'ERROR: "CALLER-ID" caller-id: "Sure" id: "123;'
+assert 'cat logs/error.log' 'ERROR: "CALLER-ID" caller-id: "Sure" clientSubSystemCode: "Sure" id: "123;'
 
 # valid POST without CLIENTSUBSYSTEMCODE
 reset
@@ -88,5 +88,15 @@ assert 'curl -s -v --data param=1 --cookie CSRF=123 --header CSRF:123 http://loc
 reset
 assert 'curl -s -v --data param=1 --cookie CSRF=123 --header CSRF:124 --header Caller-Id:Sure --header clientSubSystemCode:Sure http://localhost:20100/proxypass_log' "Request handled by LUA at"
 assert 'cat logs/error.log' 'ERROR: "CSRF-MISMATCH|CALLER-ID" caller-id: "Sure" clientSubSystemCode: "Sure" id: "123;'
+
+# invalid CSRF POST passes through but is logged
+reset
+assert 'curl -s -v --data param=1 --cookie CSRF=123 --header CSRF:124 --header Caller-Id:Sure --header clientSubSystemCode:Sure http://localhost:20100/proxypass_log' "Request handled by LUA at"
+assert 'cat logs/error.log' 'ERROR: "CSRF-MISMATCH|CALLER-ID" caller-id: "Sure" clientSubSystemCode: "Sure" id: "123;'
+
+# invalid clientSubSystemCode
+reset
+assert 'curl -s -v --header clientSubSystemCode:_ http://localhost:20100/proxypass_log' "Error: Invalid request"
+assert 'cat logs/error.log' 'ERROR: "INVALID-CLIENTSUBSYSTEMCODE" clientSubSystemCode: "_" id:'
 
 echo "*** Tests OK"
