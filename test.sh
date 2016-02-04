@@ -99,4 +99,7 @@ reset
 assert 'curl -s -v --header clientSubSystemCode:_ http://localhost:20100/proxypass_log' "Error: Invalid request"
 assert 'cat logs/error.log' 'ERROR: "INVALID-CLIENTSUBSYSTEMCODE" clientSubSystemCode: "_" id:'
 
+# valid CSRF passed with post parameter
+assert 'curl -s -v --data clientSubSystemCode=Sure&CSRF=123 --cookie CSRF=123 http://localhost:20100/proxypass_log' "Request handled by LUA at" "clientsubsystemcode: Sure" "id: 123;"
+
 echo "*** Tests OK"

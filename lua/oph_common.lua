@@ -84,7 +84,7 @@ function ophcommon.filter(blockForMinorErrors)
   -- clientSubSystemCode check
   local clientSubSystemCode = ngx.var.http_clientsubsystemcode or ngx.var.http_caller_id
   if clientSubSystemCode == nil then
-    clientSubSystemCode = resolve_post_param("CLIENTSUBSYSTEMCODE")
+    clientSubSystemCode = resolve_post_param("clientSubSystemCode")
     if clientSubSystemCode == nil then
       table.insert(errors, "NO-CLIENTSUBSYSTEMCODE")
     else
