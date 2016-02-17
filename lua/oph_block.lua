@@ -1,2 +1,2 @@
-local ophcommon = require 'lua/oph_common'
+local ophcommon = require 'oph_common'
 ophcommon.filter(true)

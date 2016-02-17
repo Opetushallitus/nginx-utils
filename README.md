@@ -36,5 +36,5 @@ stopping dev server
 # Deployment
 
 * Copy all three files so that they're available 
-* Add lua_package_path '/path/to/lua/directory;;'; directive to nginx's config at http level 
+* Add lua_package_path "${prefix}/pathtoluafiles/?.lua"; directive to nginx's config at http level 
 * Add access_by_lua_file directives to all relevant location blocks
