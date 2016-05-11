@@ -127,7 +127,7 @@ function ophcommon.filter(blockForMinorErrors)
 
   -- if blocking, return error string in plain text or json and return error code
   if (block and blockForMinorErrors) or criticalError then
-    local error = "Invalid request, please read http://oph.fi"
+    local error = "Invalid request. More information at https://github.com/Opetushallitus/dokumentaatio/blob/master/http.md"
     -- nginx.say sets status to 200 if it has not been set before
     ngx.status = ngx.HTTP_FORBIDDEN
     if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
