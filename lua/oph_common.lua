@@ -82,7 +82,8 @@ function ophcommon.filter(blockForMinorErrors)
   end
 
   -- clientSubSystemCode check
-  local clientSubSystemCode = ngx.var.http_clientsubsystemcode or ngx.var.http_caller_id
+  local caller_id = ngx.var.http_caller_id
+  local clientSubSystemCode = ngx.var.http_clientsubsystemcode or caller_id
   if clientSubSystemCode == nil then
     clientSubSystemCode = resolve_post_param("clientSubSystemCode")
     if clientSubSystemCode == nil then
@@ -105,7 +106,10 @@ function ophcommon.filter(blockForMinorErrors)
   local csrf = ngx.var.cookie_csrf
   if csrf == nil then
     csrf = random_str(16)
-    add_cookie("CSRF=" .. csrf .."; Secure; Path=/; Domain=" .. parse_domain(ngx.var.host))
+    local host = ngx.var.host
+    if host then
+      add_cookie("CSRF=" .. csrf .."; Secure; Path=/; Domain=" .. parse_domain(host))
+    end
   end
 
   -- create request header "id" from existing request id or csrf and add random string
@@ -115,8 +119,8 @@ function ophcommon.filter(blockForMinorErrors)
   -- log if errors
   if next(errors) then
     local txt = 'ERROR: "' .. table.concat(errors, "|") .. '"'
-    if ngx.var.http_caller_id then
-      txt = txt .. ' caller-id: "' .. ngx.var.http_caller_id .. '"'
+    if caller_id then
+      txt = txt .. ' caller-id: "' .. caller_id .. '"'
     end
     if clientSubSystemCode then
       txt = txt .. ' clientSubSystemCode: "' .. clientSubSystemCode .. '"'
@@ -127,10 +131,11 @@ function ophcommon.filter(blockForMinorErrors)
 
   -- if blocking, return error string in plain text or json and return error code
   if (block and blockForMinorErrors) or criticalError then
-    local error = "Invalid request. More information at https://github.com/Opetushallitus/dokumentaatio/blob/master/http.md"
+    local error = "Invalid request, please read https://github.com/Opetushallitus/dokumentaatio/blob/master/http.md"
     -- nginx.say sets status to 200 if it has not been set before
     ngx.status = ngx.HTTP_FORBIDDEN
-    if ngx.var.http_accept and string.find(ngx.var.http_accept, 'application/json') then
+    local http_accept = ngx.var.http_accept
+    if http_accept and string.find(http_accept, 'application/json') then
       ngx.header.content_type = "application/json; charset=utf-8"  
       ngx.say("{'error': '", error, "'}")
     else
