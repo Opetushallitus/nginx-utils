@@ -32,7 +32,12 @@ function add_cookie(cookie)
 end
 
 function parse_domain(host)
-  return string.match(host or "www.opintopolku.fi" , "[%w%.]*%.(%w+%.%w+)") or host
+  local domain = string.match(host or "www.opintopolku.fi" , "[%w%.]*%.(%w+%.%w+)")
+  if domain then
+    return "." .. domain
+  else
+    return host
+  end
 end
 
 function random_str(len)
