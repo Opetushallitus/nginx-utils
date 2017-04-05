@@ -68,22 +68,26 @@ function ophcommon.filter(blockForMinorErrors)
   -- Double submit protection for CSRF:
   -- CSRF cookie and CSRF header or POST param or must exist andh ave same content for "POST", "PUT", "DELETE", "PATCH"
   local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
-  if not safe_http_verbs[ngx.var.request_method] then
-    local csrf_parameter = ngx.var.http_csrf or resolve_post_param("CSRF")
-    local csrf_cookie = ngx.var.cookie_csrf
-    if csrf_cookie == nil or csrf_parameter == nil then
-        if csrf_cookie == nil then
-          block = true
-          table.insert(errors, "NO-CSRF-COOKIE")
-        end
-        if csrf_parameter == nil then
-          block = true
-          table.insert(errors, "NO-CSRF-PARAM")
-        end 
-    elseif not (csrf_cookie == csrf_parameter) then
-      block = true
-      table.insert(errors, "CSRF-MISMATCH") 
+  if not ngx.var.is_whitelisted == "true" then
+    if not safe_http_verbs[ngx.var.request_method] then
+      local csrf_parameter = ngx.var.http_csrf or resolve_post_param("CSRF")
+      local csrf_cookie = ngx.var.cookie_csrf
+      if csrf_cookie == nil or csrf_parameter == nil then
+          if csrf_cookie == nil then
+            block = true
+            table.insert(errors, "NO-CSRF-COOKIE")
+          end
+          if csrf_parameter == nil then
+            block = true
+            table.insert(errors, "NO-CSRF-PARAM")
+          end
+      elseif not (csrf_cookie == csrf_parameter) then
+        block = true
+        table.insert(errors, "CSRF-MISMATCH")
+      end
     end
+  else
+    ngx.log(ngx.INFO, "INFO: Whitelisted request")
   end
 
   -- clientSubSystemCode check
@@ -98,6 +102,7 @@ function ophcommon.filter(blockForMinorErrors)
     end
   end
 
+  -- contains character that was not alphanumeric, . or -
   if clientSubSystemCode and string.match(clientSubSystemCode,"[^(%a%d%.%-)]") then
     table.insert(errors, "INVALID-CLIENTSUBSYSTEMCODE")
     criticalError = true
@@ -144,7 +149,7 @@ function ophcommon.filter(blockForMinorErrors)
       ngx.header.content_type = "application/json; charset=utf-8"  
       ngx.say("{'error': '", error, "'}")
     else
-      ngx.say("Error: ", error)   
+      ngx.say("Error: ", error)
     end
     ngx.exit(ngx.HTTP_FORBIDDEN)
   end
