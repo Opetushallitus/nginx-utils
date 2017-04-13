@@ -68,7 +68,7 @@ function ophcommon.filter(blockForMinorErrors)
   -- Double submit protection for CSRF:
   -- CSRF cookie and CSRF header or POST param or must exist andh ave same content for "POST", "PUT", "DELETE", "PATCH"
   local safe_http_verbs = Set {"GET", "HEAD", "OPTIONS"}
-  if not ngx.var.oph_is_whitelisted == "true" then
+  if not (ngx.var.oph_is_whitelisted == "true") then
     if not safe_http_verbs[ngx.var.request_method] then
       local csrf_parameter = ngx.var.http_csrf or resolve_post_param("CSRF")
       local csrf_cookie = ngx.var.cookie_csrf
